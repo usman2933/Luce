@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUCÉ — Light Up Your Skin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06080f;
+  --bg2:#0c0f1a;
+  --surface:rgba(255,255,255,0.04);
+  --surface2:rgba(255,255,255,0.07);
+  --gold:#d4a953;
+  --gold2:#f0c97a;
+  --gold-dim:rgba(212,169,83,0.15);
+  --cream:#f5ede0;
+  --cream2:#e8d8c0;
+  --text:#f0ebe3;
+  --text2:#9a9080;
+  --text3:#5a5248;
+  --red:#e05c5c;
+  --green:#5cb87a;
+  --serif:'Playfair Display',serif;
+  --sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+#cur{position:fixed;width:10px;height:10px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s,height .3s,background .3s;mix-blend-mode:difference;}
+#cur2{position:fixed;width:40px;height:40px;border:1px solid rgba(212,169,83,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .18s ease;}
+body.hovered #cur{width:20px;height:20px;}
+body.hovered #cur2{width:60px;height:60px;border-color:var(--gold);}
+
+/* CANVAS */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.6;}
+
+/* TICKER */
+.ticker-wrap{background:var(--gold);padding:10px 0;overflow:hidden;position:relative;z-index:10;}
+.ticker-track{display:flex;white-space:nowrap;animation:tick 25s linear infinite;}
+.ticker-clone{display:flex;flex-shrink:0;}
+.t-item{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--bg);font-weight:500;padding:0 28px;}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:500;padding:0 64px;background:rgba(6,8,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,169,83,.1);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:70px;}
+.logo{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--text);letter-spacing:.25em;text-decoration:none;font-style:italic;}
+.logo b{color:var(--gold);font-style:normal;font-weight:700;}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text2);text-decoration:none;transition:color .3s;font-weight:500;}
+.nav-links a:hover{color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.n-icon{font-size:17px;cursor:pointer;color:var(--text2);transition:color .3s;background:none;border:none;}
+.n-icon:hover{color:var(--gold);}
+.n-cart{position:relative;}
+.cart-count{position:absolute;top:-6px;right:-6px;width:16px;height:16px;background:var(--gold);border-radius:50%;font-size:9px;color:var(--bg);font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative;z-index:1;overflow:hidden;}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:80px 60px 80px 80px;}
+.h-eyebrow{font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:28px;display:flex;align-items:center;gap:14px;opacity:0;animation:riseUp .8s .4s ease forwards;}
+.h-eyebrow::before{content:'';width:36px;height:1px;background:var(--gold);}
+.h-title{font-family:var(--serif);font-size:78px;font-weight:400;line-height:1.06;margin-bottom:28px;opacity:0;animation:riseUp .9s .6s ease forwards;}
+.h-title .ital{font-style:italic;color:var(--gold);}
+.h-sub{font-size:15px;color:var(--text2);line-height:1.85;max-width:380px;margin-bottom:44px;font-weight:300;opacity:0;animation:riseUp .9s .8s ease forwards;}
+.h-actions{display:flex;gap:14px;opacity:0;animation:riseUp .9s 1s ease forwards;}
+.btn-g{background:var(--gold);color:var(--bg);padding:15px 38px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;border:none;cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .35s;text-decoration:none;display:inline-block;position:relative;overflow:hidden;}
+.btn-g::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);transform:translateX(-100%);transition:transform .35s;}
+.btn-g:hover::after{transform:translateX(0);}
+.btn-o{background:transparent;color:var(--text);padding:15px 38px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .35s;text-decoration:none;display:inline-block;}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);}
+.hero-right{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.hero-right::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(212,169,83,.06) 0%,transparent 70%);}
+.hero-showcase{position:relative;width:100%;height:100%;}
+.h-prod{position:absolute;cursor:pointer;transition:transform .5s cubic-bezier(.34,1.56,.64,1);}
+.h-prod:hover{transform:scale(1.05) translateY(-8px)!important;}
+.h-prod img{width:100%;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6));transition:filter .4s;}
+.h-prod:hover img{filter:drop-shadow(0 40px 80px rgba(212,169,83,.25));}
+.h-prod-1{width:200px;top:12%;left:8%;animation:floatA 7s ease-in-out infinite;}
+.h-prod-2{width:170px;top:30%;right:5%;animation:floatB 8s ease-in-out infinite .8s;}
+.h-prod-3{width:155px;bottom:15%;left:22%;animation:floatA 6s ease-in-out infinite 1.6s;}
+.h-prod-4{width:140px;bottom:30%;right:18%;animation:floatB 7s ease-in-out infinite 2.4s;}
+.hero-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,169,83,.08) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;animation:breathe 4s ease-in-out infinite;}
+.h-badge{position:absolute;bottom:60px;left:80px;opacity:0;animation:riseUp 1s 1.3s ease forwards;}
+.badge-inner{display:flex;align-items:center;gap:16px;border:1px solid rgba(212,169,83,.2);padding:16px 24px;background:rgba(212,169,83,.05);backdrop-filter:blur(10px);}
+.badge-num{font-family:var(--serif);font-size:44px;font-weight:400;color:var(--gold);line-height:1;}
+.badge-txt{font-size:12px;color:var(--text2);line-height:1.6;}
+@keyframes floatA{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-22px) rotate(1deg)}}
+@keyframes floatB{0%,100%{transform:translateY(0) rotate(1.5deg)}50%{transform:translateY(-18px) rotate(-1deg)}}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}
+@keyframes riseUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* VALUES */
+.values{background:rgba(212,169,83,.06);border-top:1px solid rgba(212,169,83,.1);border-bottom:1px solid rgba(212,169,83,.1);padding:18px 0;overflow:hidden;position:relative;z-index:1;}
+.val-track{display:flex;white-space:nowrap;animation:tick 18s linear infinite;}
+.val-clone{display:flex;flex-shrink:0;}
+.v-item{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);padding:0 32px;display:flex;align-items:center;gap:10px;font-weight:500;}
+
+/* SALE STRIP */
+.sale-strip{background:linear-gradient(90deg,#1a1208,#2a1e0c,#1a1208);border-bottom:1px solid rgba(212,169,83,.2);padding:16px 80px;display:flex;align-items:center;justify-content:center;gap:20px;position:relative;z-index:1;}
+.ss-pct{font-family:var(--serif);font-size:36px;color:var(--gold);font-weight:400;line-height:1;}
+.ss-txt{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text2);}
+.ss-code{font-size:13px;letter-spacing:.2em;border:1px solid rgba(212,169,83,.4);padding:6px 18px;color:var(--gold);font-family:monospace;}
+.ss-divider{width:1px;height:32px;background:rgba(212,169,83,.2);}
+
+/* PRODUCTS SECTION */
+.products{padding:100px 64px;position:relative;z-index:1;}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:70px;}
+.sec-tag{font-size:10px;letter-spacing:.38em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.sec-tag::before{content:'';width:28px;height:1px;background:var(--gold);}
+.sec-title{font-family:var(--serif);font-size:50px;font-weight:400;line-height:1.15;color:var(--text);}
+.sec-title i{font-style:italic;color:var(--gold);}
+
+/* PRODUCT CARDS - THE MAGIC */
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.prod-card{
+  position:relative;
+  background:var(--surface);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:4px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:border-color .4s,box-shadow .4s;
+  transform-style:preserve-3d;
+}
+.prod-card:hover{
+  border-color:rgba(212,169,83,.3);
+  box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 60px rgba(212,169,83,.06);
+}
+.prod-card-inner{padding:0;position:relative;}
+
+/* Image area */
+.pimg-wrap{
+  height:280px;
+  position:relative;
+  overflow:hidden;
+  background:radial-gradient(ellipse at 50% 60%,rgba(212,169,83,.05) 0%,rgba(255,255,255,.02) 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.pimg-wrap::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,transparent 60%,rgba(6,8,15,.7) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+.pimg{
+  width:180px;
+  height:240px;
+  object-fit:contain;
+  transition:transform .7s cubic-bezier(.34,1.56,.64,1),filter .4s;
+  position:relative;z-index:1;
+  filter:drop-shadow(0 20px 40px rgba(0,0,0,.4));
+}
+.pimg-hover{
+  position:absolute;
+  width:180px;height:240px;
+  object-fit:contain;
+  transition:opacity .5s ease,transform .7s cubic-bezier(.34,1.56,.64,1);
+  opacity:0;
+  z-index:1;
+  filter:drop-shadow(0 20px 40px rgba(212,169,83,.2));
+  transform:scale(.92);
+}
+.prod-card:hover .pimg{transform:scale(1.08) translateY(-12px);filter:drop-shadow(0 30px 60px rgba(0,0,0,.5));}
+.prod-card:hover .pimg-hover{opacity:1;transform:scale(1.08) translateY(-12px);}
+
+/* Shine sweep on hover */
+.pimg-wrap::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.06) 50%,transparent 65%);
+  transform:translateX(-100%);
+  transition:transform .6s ease;
+  z-index:3;
+  pointer-events:none;
+}
+.prod-card:hover .pimg-wrap::before{transform:translateX(100%);}
+
+/* Badge */
+.pbadge{
+  position:absolute;top:16px;left:16px;
+  background:var(--gold);color:var(--bg);
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  padding:5px 12px;font-weight:600;z-index:4;
+}
+.pbadge.new{background:var(--text);color:var(--gold);}
+
+/* Card info */
+.pinfo{padding:24px 24px 28px;}
+.pcat{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:500;}
+.pname{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--text);margin-bottom:8px;line-height:1.25;}
+.pdesc{font-size:13px;color:var(--text2);line-height:1.75;font-weight:300;margin-bottom:16px;}
+.pstars{display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+.stars{color:var(--gold);font-size:13px;letter-spacing:2px;}
+.rcount{font-size:11px;color:var(--text3);}
+.pfoot{display:flex;align-items:center;justify-content:space-between;}
+.pprice{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--text);}
+.pprice span{font-size:12px;font-family:var(--sans);color:var(--text2);font-weight:300;}
+.padd{
+  background:transparent;
+  border:1px solid rgba(212,169,83,.3);
+  color:var(--gold);
+  padding:9px 18px;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;font-family:var(--sans);
+  transition:all .3s;
+  position:relative;overflow:hidden;
+}
+.padd::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.padd:hover::before{transform:scaleX(1);}
+.padd:hover{color:var(--bg);}
+.padd span{position:relative;z-index:1;}
+
+/* Progress bar on card (indicates popularity) */
+.ppop{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);}
+.ppop-label{font-size:10px;color:var(--text3);letter-spacing:.1em;display:flex;justify-content:space-between;margin-bottom:6px;}
+.ppop-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;}
+.ppop-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:1px;transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+
+/* CONCERNS */
+.concerns{padding:100px 64px;background:var(--bg2);position:relative;z-index:1;}
+.conc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:60px;}
+.conc-card{
+  border:1px solid rgba(255,255,255,.06);
+  padding:36px 24px;
+  cursor:pointer;
+  transition:all .4s;
+  position:relative;overflow:hidden;
+  background:var(--surface);
+}
+.conc-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(212,169,83,.08) 0%,transparent 100%);
+  opacity:0;transition:opacity .4s;
+}
+.conc-card:hover::before{opacity:1;}
+.conc-card:hover{transform:translateY(-6px);border-color:rgba(212,169,83,.25);box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.conc-icon{font-size:36px;margin-bottom:20px;display:block;}
+.conc-title{font-family:var(--serif);font-size:19px;font-weight:400;color:var(--text);margin-bottom:10px;}
+.conc-desc{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300;}
+.conc-arrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-top:18px;transition:gap .3s;}
+.conc-card:hover .conc-arrow{gap:14px;}
+
+/* INGREDIENTS */
+.ingredients{padding:100px 64px;position:relative;z-index:1;overflow:hidden;}
+.ing-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(212,169,83,.04) 0%,transparent 60%);pointer-events:none;}
+.ing-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:60px;}
+.ing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.ing-card{
+  aspect-ratio:1;
+  border:1px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;padding:16px 8px;cursor:pointer;
+  transition:all .4s;text-align:center;
+  background:var(--surface);
+}
+.ing-card:hover{background:var(--gold-dim);border-color:rgba(212,169,83,.3);transform:scale(1.04);}
+.ing-emoji{font-size:26px;}
+.ing-name{font-size:11px;color:var(--gold);letter-spacing:.1em;line-height:1.4;font-weight:400;}
+.ing-right .sec-title{font-size:42px;}
+.ing-list{margin-top:32px;display:flex;flex-direction:column;gap:16px;}
+.ing-item{display:flex;align-items:flex-start;gap:16px;padding:16px;border:1px solid rgba(255,255,255,.05);transition:border-color .3s;}
+.ing-item:hover{border-color:rgba(212,169,83,.2);}
+.ing-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px;}
+.ing-item-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.ing-item-desc{font-size:12px;color:var(--text2);font-weight:300;line-height:1.6;}
+
+/* FEATURES */
+.features{border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);display:grid;grid-template-columns:repeat(4,1fr);position:relative;z-index:1;}
+.feat{padding:48px 40px;border-right:1px solid rgba(255,255,255,.05);transition:background .4s;text-align:center;}
+.feat:last-child{border-right:none;}
+.feat:hover{background:var(--surface);}
+.feat-icon{font-size:32px;margin-bottom:18px;display:block;}
+.feat-title{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--text);margin-bottom:8px;}
+.feat-desc{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300;}
+
+/* REVIEWS */
+.reviews{padding:100px 64px;background:var(--bg2);position:relative;z-index:1;}
+.rev-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:60px;}
+.rev-rating{display:flex;align-items:center;gap:20px;}
+.rev-num{font-family:var(--serif);font-size:72px;font-weight:400;color:var(--gold);line-height:1;}
+.rev-meta .stars{font-size:22px;letter-spacing:4px;}
+.rev-meta p{font-size:12px;color:var(--text3);margin-top:4px;letter-spacing:.1em;}
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.rev-card{
+  border:1px solid rgba(255,255,255,.06);
+  padding:36px;
+  background:var(--surface);
+  transition:all .4s;
+  position:relative;overflow:hidden;
+}
+.rev-card::before{content:'"';position:absolute;top:16px;right:20px;font-family:var(--serif);font-size:80px;color:rgba(212,169,83,.08);line-height:1;pointer-events:none;}
+.rev-card:hover{transform:translateY(-5px);border-color:rgba(212,169,83,.2);box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.rev-stars{color:var(--gold);font-size:14px;letter-spacing:3px;margin-bottom:18px;}
+.rev-text{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--text);line-height:1.75;font-style:italic;margin-bottom:24px;}
+.rev-footer{display:flex;align-items:center;justify-content:space-between;}
+.rev-author{font-size:13px;font-weight:500;color:var(--text);}
+.rev-product{font-size:11px;color:var(--text3);margin-top:2px;}
+.rev-verified{font-size:10px;color:var(--gold);letter-spacing:.12em;background:var(--gold-dim);padding:3px 10px;border-radius:20px;}
+
+/* CTA */
+.cta{padding:100px 64px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;overflow:hidden;}
+.cta::before{content:'';position:absolute;right:-100px;top:50%;transform:translateY(-50%);width:500px;height:500px;border-radius:50%;border:1px solid rgba(212,169,83,.06);pointer-events:none;}
+.cta::after{content:'';position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:300px;height:300px;border-radius:50%;border:1px solid rgba(212,169,83,.08);pointer-events:none;}
+.cta-visual{position:relative;height:480px;}
+.cta-circle-outer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.cta-ring{width:360px;height:360px;border-radius:50%;border:1px solid rgba(212,169,83,.15);position:absolute;animation:spin 30s linear infinite;}
+.cta-ring2{width:260px;height:260px;border-radius:50%;border:1px solid rgba(212,169,83,.1);position:absolute;animation:spin 20s linear infinite reverse;}
+.cta-center{width:160px;height:160px;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(212,169,83,.3);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:36px;font-style:italic;color:var(--gold);}
+.cta-prods{position:absolute;inset:0;pointer-events:none;}
+.cp{position:absolute;font-size:52px;animation:floatA 5s ease-in-out infinite;}
+.cp1{top:5%;left:10%;}
+.cp2{top:5%;right:10%;animation-delay:.8s;}
+.cp3{bottom:5%;left:10%;animation-delay:1.6s;}
+.cp4{bottom:5%;right:10%;animation-delay:2.4s;}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.cta-title{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.15;margin-bottom:20px;}
+.cta-title i{font-style:italic;color:var(--gold);}
+.cta-text{font-size:15px;color:var(--text2);line-height:1.8;font-weight:300;margin-bottom:32px;}
+.cta-sale-box{display:inline-flex;align-items:center;gap:16px;border:1px solid rgba(212,169,83,.3);padding:16px 24px;margin-bottom:32px;background:rgba(212,169,83,.04);}
+.csb-pct{font-family:var(--serif);font-size:40px;color:var(--gold);}
+.csb-text{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--text2);line-height:1.6;}
+
+/* LUCE BOX */
+.lucebox{padding:80px 64px;background:var(--bg2);text-align:center;position:relative;z-index:1;}
+.lb-tag{display:inline-block;background:var(--gold);color:var(--bg);font-size:10px;letter-spacing:.3em;text-transform:uppercase;padding:6px 20px;margin-bottom:28px;font-weight:600;}
+.lb-title{font-family:var(--serif);font-size:52px;font-weight:400;margin-bottom:16px;}
+.lb-title i{font-style:italic;color:var(--gold);}
+.lb-sub{font-size:15px;color:var(--text2);max-width:480px;margin:0 auto 40px;line-height:1.8;font-weight:300;}
+.lb-boxes{display:flex;justify-content:center;gap:12px;margin-bottom:44px;flex-wrap:wrap;}
+.lb-box{width:96px;height:116px;border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all .4s;background:var(--surface);}
+.lb-box:hover{border-color:var(--gold);background:var(--gold-dim);transform:translateY(-6px);}
+.lb-box-icon{font-size:30px;}
+.lb-box-name{font-size:9px;color:var(--text3);letter-spacing:.1em;}
+.lb-box.selected{border-color:var(--gold);background:var(--gold-dim);}
+.lb-box.add-btn{border-style:dashed;font-size:28px;color:var(--text3);}
+.lb-box.add-btn:hover{color:var(--gold);}
+
+/* NEWSLETTER */
+.newsletter{background:linear-gradient(135deg,#0e0b05,#1a1207,#0e0b05);border-top:1px solid rgba(212,169,83,.1);border-bottom:1px solid rgba(212,169,83,.1);padding:80px 64px;text-align:center;position:relative;z-index:1;overflow:hidden;}
+.newsletter::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(212,169,83,.05) 0%,transparent 70%);pointer-events:none;}
+.nl-title{font-family:var(--serif);font-size:46px;font-weight:400;margin-bottom:12px;color:var(--text);}
+.nl-title i{font-style:italic;color:var(--gold);}
+.nl-sub{font-size:14px;color:var(--text2);margin-bottom:36px;font-weight:300;letter-spacing:.04em;}
+.nl-form{display:flex;max-width:460px;margin:0 auto;}
+.nl-input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-right:none;padding:15px 22px;color:var(--text);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .3s;}
+.nl-input::placeholder{color:var(--text3);}
+.nl-input:focus{border-color:rgba(212,169,83,.4);}
+.nl-btn{background:var(--gold);color:var(--bg);border:none;padding:15px 30px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);font-weight:600;transition:background .3s;}
+.nl-btn:hover{background:var(--gold2);}
+
+/* FOOTER */
+footer{background:#030407;padding:64px 64px 40px;border-top:1px solid rgba(212,169,83,.08);position:relative;z-index:1;}
+.f-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:56px;}
+.f-logo{font-family:var(--serif);font-size:30px;font-weight:400;color:var(--text);letter-spacing:.2em;font-style:italic;margin-bottom:16px;}
+.f-logo b{color:var(--gold);font-style:normal;font-weight:700;}
+.f-desc{font-size:13px;color:var(--text3);line-height:1.8;font-weight:300;max-width:240px;}
+.f-email{font-size:12px;color:var(--text3);margin-top:14px;}
+.f-social{display:flex;gap:10px;margin-top:20px;}
+.f-s{width:34px;height:34px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .3s;color:var(--text3);}
+.f-s:hover{border-color:var(--gold);color:var(--gold);}
+.f-col h4{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;font-weight:500;}
+.f-col ul{list-style:none;display:flex;flex-direction:column;gap:12px;}
+.f-col a{font-size:13px;color:var(--text3);text-decoration:none;transition:color .3s;font-weight:300;}
+.f-col a:hover{color:var(--gold);}
+.f-bottom{border-top:1px solid rgba(255,255,255,.05);padding-top:28px;display:flex;align-items:center;justify-content:space-between;}
+.f-bottom p{font-size:12px;color:var(--text3);font-weight:300;}
+.f-badges{display:flex;gap:10px;}
+.f-badge{border:1px solid rgba(255,255,255,.06);padding:4px 12px;font-size:10px;color:var(--text3);letter-spacing:.1em;}
+
+/* CART DRAWER */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;opacity:0;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(6px);}
+.cart-overlay.open{opacity:1;pointer-events:all;}
+.cart-drawer{position:fixed;right:-440px;top:0;bottom:0;width:440px;background:#0c0f1a;border-left:1px solid rgba(212,169,83,.1);z-index:900;transition:right .45s cubic-bezier(.76,0,.24,1);padding:0;display:flex;flex-direction:column;}
+.cart-drawer.open{right:0;}
+.cart-head{display:flex;align-items:center;justify-content:space-between;padding:28px 28px 24px;border-bottom:1px solid rgba(255,255,255,.06);}
+.cart-head-title{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--text);}
+.cart-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);transition:color .2s;}
+.cart-close:hover{color:var(--gold);}
+.cart-body{flex:1;overflow-y:auto;padding:20px 28px;}
+.cart-empty{text-align:center;padding:80px 0;color:var(--text3);font-family:var(--serif);font-size:22px;font-style:italic;}
+.ci{display:flex;gap:14px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.ci-img{width:72px;height:88px;background:rgba(212,169,83,.05);border:1px solid rgba(212,169,83,.1);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.ci-img img{width:60px;height:75px;object-fit:contain;}
+.ci-info{flex:1;}
+.ci-name{font-family:var(--serif);font-size:16px;color:var(--text);margin-bottom:4px;}
+.ci-price{font-size:14px;color:var(--gold);font-weight:500;margin-bottom:10px;}
+.ci-qty{display:flex;align-items:center;gap:10px;}
+.qbtn{width:26px;height:26px;background:rgba(255,255,255,.06);border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.qbtn:hover{background:var(--gold-dim);color:var(--gold);}
+.qnum{font-size:14px;font-weight:500;color:var(--text);min-width:20px;text-align:center;}
+.ci-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-top:4px;display:block;letter-spacing:.12em;transition:color .2s;text-transform:uppercase;}
+.ci-remove:hover{color:var(--red);}
+.cart-foot{padding:20px 28px;border-top:1px solid rgba(255,255,255,.06);}
+.cart-subtotal{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.cart-subtotal span:first-child{font-size:13px;color:var(--text2);}
+.cart-subtotal span:last-child{font-family:var(--serif);font-size:24px;color:var(--text);}
+.ship-note{font-size:12px;text-align:center;margin-bottom:16px;padding:10px;background:var(--gold-dim);color:var(--gold);letter-spacing:.08em;}
+.checkout-btn{width:100%;background:var(--gold);color:var(--bg);border:none;padding:17px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);font-weight:600;transition:background .3s;margin-bottom:8px;}
+.checkout-btn:hover{background:var(--gold2);}
+.continue-btn{width:100%;background:transparent;color:var(--text2);border:1px solid rgba(255,255,255,.1);padding:13px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .3s;}
+.continue-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* SEARCH */
+.search-overlay{position:fixed;inset:0;background:rgba(6,8,15,.92);z-index:700;opacity:0;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;}
+.search-overlay.open{opacity:1;pointer-events:all;}
+.search-box{width:600px;max-width:90vw;}
+.search-input{width:100%;background:transparent;border:none;border-bottom:2px solid rgba(212,169,83,.4);padding:16px 0;font-family:var(--serif);font-size:36px;color:var(--text);outline:none;font-style:italic;}
+.search-input::placeholder{color:var(--text3);}
+.search-hint{font-size:12px;color:var(--text3);margin-top:12px;letter-spacing:.15em;text-transform:uppercase;}
+.search-close-btn{position:absolute;top:40px;right:40px;background:none;border:none;font-size:28px;cursor:pointer;color:var(--text3);transition:color .2s;}
+.search-close-btn:hover{color:var(--gold);}
+.search-results{margin-top:32px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-height:300px;overflow-y:auto;}
+.sr-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:all .2s;}
+.sr-item:hover{border-color:rgba(212,169,83,.2);background:var(--gold-dim);}
+.sr-icon{font-size:24px;}
+.sr-name{font-size:13px;color:var(--text);}
+.sr-price{font-size:12px;color:var(--gold);}
+
+/* TOAST */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(70px);background:linear-gradient(135deg,#1a1510,#231c10);border:1px solid rgba(212,169,83,.3);color:var(--gold);padding:14px 28px;font-size:12px;letter-spacing:.15em;text-transform:uppercase;z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;backdrop-filter:blur(10px);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* SCROLL REVEAL */
+.sr{opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);}
+.sr.d1{transition-delay:.1s}.sr.d2{transition-delay:.2s}.sr.d3{transition-delay:.3s}.sr.d4{transition-delay:.4s}
+.sr.visible{opacity:1;transform:translateY(0);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:rgba(212,169,83,.2);border-radius:2px;}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Search Overlay -->
+<div class="search-overlay" id="searchOverlay">
+  <button class="search-close-btn" onclick="closeSearch()">✕</button>
+  <div class="search-box">
+    <input class="search-input" id="searchIn" placeholder="Search products..." oninput="doSearch(this.value)" autocomplete="off">
+    <div class="search-hint">Type to search — press ESC to close</div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- Cart -->
+<div class="cart-overlay" id="cOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cDrawer">
+  <div class="cart-head">
+    <div class="cart-head-title">Shopping Cart</div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cBody"><div class="cart-empty">Your cart is empty</div></div>
+  <div class="cart-foot" id="cFoot" style="display:none">
+    <div class="cart-subtotal"><span>Subtotal</span><span id="cTotal">Rs.0</span></div>
+    <div class="ship-note" id="shipNote"></div>
+    <button class="checkout-btn" onclick="toCheckout()">Proceed to Checkout →</button>
+    <button class="continue-btn" onclick="closeCart()">Continue Shopping</button>
+  </div>
+</div>
+
+<!-- Ticker top -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-clone">
+      <span class="t-item">✦ LUCÉ</span><span class="t-item">Light Up Your Skin</span><span class="t-item">✦ FLAT 15% OFF</span><span class="t-item">Feel Flawless</span><span class="t-item">FREE SHIPPING ABOVE Rs.3,999</span><span class="t-item">✦ LUCÉ</span><span class="t-item">Your Daily Glow Ritual</span><span class="t-item">✦ CLEAN BEAUTY</span><span class="t-item">LAB TESTED</span><span class="t-item">CRUELTY FREE</span>
+    </div>
+    <div class="ticker-clone" aria-hidden="true">
+      <span class="t-item">✦ LUCÉ</span><span class="t-item">Light Up Your Skin</span><span class="t-item">✦ FLAT 15% OFF</span><span class="t-item">Feel Flawless</span><span class="t-item">FREE SHIPPING ABOVE Rs.3,999</span><span class="t-item">✦ LUCÉ</span><span class="t-item">Your Daily Glow Ritual</span><span class="t-item">✦ CLEAN BEAUTY</span><span class="t-item">LAB TESTED</span><span class="t-item">CRUELTY FREE</span>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo"><i>LUC<b>É</b></i></a>
+    <ul class="nav-links">
+      <li><a href="#products">Products</a></li>
+      <li><a href="#concerns">Skin Concerns</a></li>
+      <li><a href="#ingredients">Ingredients</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#lucebox">Luce Box</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="n-icon" onclick="openSearch()">🔍</button>
+      <button class="n-icon" onclick="toast('Account feature coming soon!')">👤</button>
+      <button class="n-icon n-cart" onclick="openCart()">🛍<span class="cart-count" id="cCount">0</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="h-eyebrow">✦ Bially Skin Care</div>
+    <h1 class="h-title">Light Up<br>Your <span class="ital">Skin</span><br>Naturally</h1>
+    <p class="h-sub">Science-backed, nature-inspired formulas crafted for radiant, healthy skin. Clean beauty without compromise — made in Pakistan, trusted worldwide.</p>
+    <div class="h-actions">
+      <a href="#products" class="btn-g">Shop Collection</a>
+      <a href="#concerns" class="btn-o">Find Your Routine</a>
+    </div>
+    <div class="h-badge">
+      <div class="badge-inner">
+        <div class="badge-num">4.9</div>
+        <div class="badge-txt">★★★★★<br>22 Verified Reviews</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-glow"></div>
+    <div class="hero-showcase">
+      <div class="h-prod h-prod-1" onclick="addToCart(0)">
+        <img src="https://lucecare.com/cdn/shop/files/vitamin_c_serum.jpg?v=1765851963&width=400" alt="Vitamin C Serum" onerror="this.style.display='none';this.parentNode.querySelector('.fallback').style.display='flex'">
+        <div class="fallback" style="display:none;width:180px;height:220px;background:linear-gradient(135deg,rgba(212,169,83,.1),rgba(212,169,83,.05));align-items:center;justify-content:center;font-size:60px;border:1px solid rgba(212,169,83,.15);">🍊</div>
+      </div>
+      <div class="h-prod h-prod-2" onclick="addToCart(2)">
+        <img src="https://lucecare.com/cdn/shop/files/SUNSCREEN_TUBE_jpg.jpg?v=1770133862&width=400" alt="Sunblock" onerror="this.style.display='none';this.parentNode.querySelector('.fallback').style.display='flex'">
+        <div class="fallback" style="display:none;width:160px;height:190px;background:linear-gradient(135deg,rgba(212,169,83,.1),rgba(212,169,83,.05));align-items:center;justify-content:center;font-size:52px;border:1px solid rgba(212,169,83,.15);">☀️</div>
+      </div>
+      <div class="h-prod h-prod-3" onclick="addToCart(4)">
+        <img src="https://lucecare.com/cdn/shop/files/rice_facewash_2.jpg?v=1765852256&width=400" alt="Rice Facewash" onerror="this.style.display='none';this.parentNode.querySelector('.fallback').style.display='flex'">
+        <div class="fallback" style="display:none;width:140px;height:175px;background:linear-gradient(135deg,rgba(212,169,83,.1),rgba(212,169,83,.05));align-items:center;justify-content:center;font-size:46px;border:1px solid rgba(212,169,83,.15);">🌾</div>
+      </div>
+      <div class="h-prod h-prod-4" onclick="addToCart(3)">
+        <img src="https://lucecare.com/cdn/shop/files/shea_butter_2.jpg?v=1765851910&width=400" alt="Shea Butter" onerror="this.style.display='none';this.parentNode.querySelector('.fallback').style.display='flex'">
+        <div class="fallback" style="display:none;width:130px;height:160px;background:linear-gradient(135deg,rgba(212,169,83,.1),rgba(212,169,83,.05));align-items:center;justify-content:center;font-size:42px;border:1px solid rgba(212,169,83,.15);">🧈</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values -->
+<div class="values">
+  <div class="val-track">
+    <div class="val-clone">
+      <span class="v-item">🚫 Paraben Free</span><span class="v-item">🌾 Gluten Free</span><span class="v-item">🐰 Cruelty Free</span><span class="v-item">🌿 Vegan</span><span class="v-item">🔬 Lab Tested</span><span class="v-item">✨ Clean Beauty</span><span class="v-item">💧 Pure Formulas</span><span class="v-item">🌱 Natural Extracts</span>
+    </div>
+    <div class="val-clone" aria-hidden="true">
+      <span class="v-item">🚫 Paraben Free</span><span class="v-item">🌾 Gluten Free</span><span class="v-item">🐰 Cruelty Free</span><span class="v-item">🌿 Vegan</span><span class="v-item">🔬 Lab Tested</span><span class="v-item">✨ Clean Beauty</span><span class="v-item">💧 Pure Formulas</span><span class="v-item">🌱 Natural Extracts</span>
+    </div>
+  </div>
+</div>
+
+<!-- Sale strip -->
+<div class="sale-strip">
+  <div class="ss-txt">Limited Time Offer</div>
+  <div class="ss-divider"></div>
+  <div class="ss-pct">15% OFF</div>
+  <div class="ss-divider"></div>
+  <div class="ss-txt">All Products — Code</div>
+  <div class="ss-code">LUCE15</div>
+  <div class="ss-txt">At Checkout</div>
+</div>
+
+<!-- Products -->
+<section class="products" id="products">
+  <div class="sec-head sr">
+    <div>
+      <div class="sec-tag">✦ Our Collection</div>
+      <h2 class="sec-title">Crafted for Your<br><i>Daily Glow Ritual</i></h2>
+    </div>
+    <a href="https://lucecare.com/collections/all" target="_blank" class="btn-o">View All →</a>
+  </div>
+  <div class="prod-grid" id="prodGrid"></div>
+</section>
+
+<!-- Concerns -->
+<section class="concerns" id="concerns">
+  <div class="sr">
+    <div class="sec-tag">✦ Shop By Concern</div>
+    <h2 class="sec-title">Find What Your <i>Skin Needs</i></h2>
+  </div>
+  <div class="conc-grid">
+    <div class="conc-card sr d1"><span class="conc-icon">✨</span><div class="conc-title">Dullness & Brightening</div><div class="conc-desc">Restore your natural radiance with Vitamin-C powered formulas.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d2"><span class="conc-icon">💧</span><div class="conc-title">Dryness & Dehydration</div><div class="conc-desc">Deep hydration with Hyaluronic Acid and Shea Butter blends.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d3"><span class="conc-icon">🎯</span><div class="conc-title">Uneven Tone & Dark Spots</div><div class="conc-desc">Target hyperpigmentation with our Brightening Serum range.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d4"><span class="conc-icon">☀️</span><div class="conc-title">Sun Protection</div><div class="conc-desc">SPF 60 broad-spectrum protection for all skin types daily.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d1"><span class="conc-icon">🌸</span><div class="conc-title">Sensitive Skin</div><div class="conc-desc">Gentle, fragrance-free formulas for irritated and reactive skin.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d2"><span class="conc-icon">🌊</span><div class="conc-title">Rough Texture</div><div class="conc-desc">Smooth and refine with rice extract and gentle exfoliation.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d3"><span class="conc-icon">🔬</span><div class="conc-title">Hyperpigmentation</div><div class="conc-desc">Glutathione and Vitamin-C work together to even your tone.</div><div class="conc-arrow">Shop Now →</div></div>
+    <div class="conc-card sr d4" style="border-color:rgba(212,169,83,.15);background:rgba(212,169,83,.04)"><span class="conc-icon">📋</span><div class="conc-title" style="color:var(--gold)">Skin Quiz</div><div class="conc-desc">Not sure what you need? Take our 60-second skin quiz.</div><div class="conc-arrow">Take Quiz →</div></div>
+  </div>
+</section>
+
+<!-- Ingredients -->
+<section class="ingredients" id="ingredients">
+  <div class="ing-bg"></div>
+  <div class="sr">
+    <div class="sec-tag">✦ Key Ingredients</div>
+    <h2 class="sec-title">Science Meets <i>Nature</i></h2>
+  </div>
+  <div class="ing-layout">
+    <div class="ing-grid sr">
+      <div class="ing-card"><div class="ing-emoji">🍊</div><div class="ing-name">Vitamin C</div></div>
+      <div class="ing-card"><div class="ing-emoji">💫</div><div class="ing-name">Glutathione</div></div>
+      <div class="ing-card"><div class="ing-emoji">🌾</div><div class="ing-name">Rice Extract</div></div>
+      <div class="ing-card"><div class="ing-emoji">🧈</div><div class="ing-name">Shea Butter</div></div>
+      <div class="ing-card"><div class="ing-emoji">🛡️</div><div class="ing-name">Zinc / UV Filters</div></div>
+      <div class="ing-card"><div class="ing-emoji">💎</div><div class="ing-name">Hyaluronic Acid</div></div>
+      <div class="ing-card"><div class="ing-emoji">🌊</div><div class="ing-name">Glycerin</div></div>
+      <div class="ing-card"><div class="ing-emoji">🌿</div><div class="ing-name">Natural Extracts</div></div>
+    </div>
+    <div class="ing-right sr d2">
+      <div class="sec-tag">✦ What Goes Inside</div>
+      <h3 class="sec-title" style="font-size:38px">Every Ingredient<br>Has a <i>Purpose</i></h3>
+      <div class="ing-list">
+        <div class="ing-item"><div class="ing-dot"></div><div><div class="ing-item-name">Vitamin C (Ascorbic Acid)</div><div class="ing-item-desc">Brightens skin tone, fights free radicals, stimulates collagen — our hero ingredient.</div></div></div>
+        <div class="ing-item"><div class="ing-dot"></div><div><div class="ing-item-name">Glutathione</div><div class="ing-item-desc">Master antioxidant that evens skin tone and reverses oxidative damage naturally.</div></div></div>
+        <div class="ing-item"><div class="ing-dot"></div><div><div class="ing-item-name">Hyaluronic Acid</div><div class="ing-item-desc">Holds up to 1000× its weight in water — instant plumpness and deep hydration.</div></div></div>
+        <div class="ing-item"><div class="ing-dot"></div><div><div class="ing-item-name">Rice Extract</div><div class="ing-item-desc">A centuries-old Asian beauty secret — smooths, brightens, and refines texture.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<div class="features sr">
+  <div class="feat"><span class="feat-icon">🚚</span><div class="feat-title">Free Shipping</div><div class="feat-desc">On all orders above Rs.3,999 delivered to your door, nationwide.</div></div>
+  <div class="feat"><span class="feat-icon">🔬</span><div class="feat-title">Lab Tested</div><div class="feat-desc">Every formula is dermatologist tested and clinically verified safe.</div></div>
+  <div class="feat"><span class="feat-icon">🐰</span><div class="feat-title">Cruelty Free</div><div class="feat-desc">Never tested on animals. Always 100% ethical, vegan, and kind.</div></div>
+  <div class="feat"><span class="feat-icon">↩️</span><div class="feat-title">Easy Returns</div><div class="feat-desc">Not satisfied? 7-day hassle-free return policy, no questions asked.</div></div>
+</div>
+
+<!-- Reviews -->
+<section class="reviews" id="reviews">
+  <div class="rev-top sr">
+    <div>
+      <div class="sec-tag">✦ Customer Love</div>
+      <h2 class="sec-title">Real Results, <i>Real People</i></h2>
+    </div>
+    <div class="rev-rating">
+      <div class="rev-num">4.9</div>
+      <div class="rev-meta"><div class="stars">★★★★★</div><p>22 Verified Reviews</p></div>
+    </div>
+  </div>
+  <div class="rev-grid">
+    <div class="rev-card sr d1"><div class="rev-stars">★★★★★</div><div class="rev-text">Such a fresh yummy scent, light on the skin. Amazing formula — would definitely recommend to everyone!</div><div class="rev-footer"><div><div class="rev-author">Izza</div><div class="rev-product">Vitamin-C Facewash</div></div><div class="rev-verified">✓ Verified</div></div></div>
+    <div class="rev-card sr d2"><div class="rev-stars">★★★★★</div><div class="rev-text">I ride a bike and noticed it doesn't leave any white marks on skin. Doesn't irritate at all — perfect sunblock!</div><div class="rev-footer"><div><div class="rev-author">Saad</div><div class="rev-product">Sunblock 60SPF</div></div><div class="rev-verified">✓ Verified</div></div></div>
+    <div class="rev-card sr d3"><div class="rev-stars">★★★★★</div><div class="rev-text">Very good product, I like it very much and also recommend to everyone. Such a quality you don't expect for this price!</div><div class="rev-footer"><div><div class="rev-author">Sultan Ali</div><div class="rev-product">Shea Butter Body Lotion</div></div><div class="rev-verified">✓ Verified</div></div></div>
+    <div class="rev-card sr d1"><div class="rev-stars">★★★★★</div><div class="rev-text">Such a yummy formula, applies on skin so nicely. So moisturising, smells lovely too!! Will order again for sure.</div><div class="rev-footer"><div><div class="rev-author">Abdullah Y.</div><div class="rev-product">Nourishing Body Lotion</div></div><div class="rev-verified">✓ Verified</div></div></div>
+    <div class="rev-card sr d2"><div class="rev-stars">★★★★★</div><div class="rev-text">The Vitamin-C Serum faded my dark spots in just 3 weeks. I get compliments every day now — absolutely love it!</div><div class="rev-footer"><div><div class="rev-author">Ayesha K.</div><div class="rev-product">Vitamin-C Serum</div></div><div class="rev-verified">✓ Verified</div></div></div>
+    <div class="rev-card sr d3"><div class="rev-stars">★★★★★</div><div class="rev-text">Finally a Pakistani brand that delivers real results! The moisturiser is lightweight yet so deeply hydrating. Love love love.</div><div class="rev-footer"><div><div class="rev-author">Nimra A.</div><div class="rev-product">Moisturiser 100ml</div></div><div class="rev-verified">✓ Verified</div></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta sr">
+  <div class="cta-visual">
+    <div class="cta-circle-outer">
+      <div class="cta-ring"></div>
+      <div class="cta-ring2"></div>
+      <div class="cta-center">✦</div>
+    </div>
+    <div class="cta-prods">
+      <div class="cp cp1">🌿</div>
+      <div class="cp cp2">✨</div>
+      <div class="cp cp3">💧</div>
+      <div class="cp cp4">🌸</div>
+    </div>
+  </div>
+  <div>
+    <div class="sec-tag">✦ Limited Offer</div>
+    <div class="cta-sale-box">
+      <div class="csb-pct">15% OFF</div>
+      <div class="csb-text">ON ALL PRODUCTS<br>CODE: LUCE15</div>
+    </div>
+    <h2 class="cta-title">Your Skin Deserves<br>The Very <i>Best</i></h2>
+    <p class="cta-text">Use code LUCE15 at checkout. Free shipping on orders above Rs.3,999. Clean, vegan, lab-tested formulas — delivered right to your door.</p>
+    <a href="#products" class="btn-g">Shop the Sale →</a>
+  </div>
+</section>
+
+<!-- Luce Box -->
+<section class="lucebox" id="lucebox">
+  <div class="sr">
+    <div class="lb-tag">✦ Build Your Bundle</div>
+    <h2 class="lb-title">Make Your Own <i>Luce Box</i></h2>
+    <p class="lb-sub">Curate your perfect skincare routine. Pick any 3–5 products and we'll box them beautifully — perfect for gifting or your own daily ritual.</p>
+    <div class="lb-boxes" id="lbBoxes"></div>
+    <a href="https://lucecare.com/collections/all" target="_blank" class="btn-g">Build My Box →</a>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter">
+  <div class="sr">
+    <h2 class="nl-title">Join the <i>Glow</i> Club</h2>
+    <p class="nl-sub">Get skincare tips, exclusive offers & early access to launches. No spam — only glow.</p>
+    <div class="nl-form">
+      <input class="nl-input" type="email" id="nlEmail" placeholder="your@email.com">
+      <button class="nl-btn" onclick="subscribe()">Subscribe</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer id="contact">
+  <div class="f-grid">
+    <div>
+      <div class="f-logo"><i>LUC<b>É</b></i></div>
+      <p class="f-desc">Bially Skin Care — clean, science-backed beauty formulated for radiant skin. Cruelty-free, vegan & lab-tested.</p>
+      <div class="f-email">📧 eastnaturals.info@gmail.com</div>
+      <div class="f-social">
+        <div class="f-s">f</div>
+        <div class="f-s">📷</div>
+      </div>
+    </div>
+    <div class="f-col"><h4>Shop</h4><ul><li><a href="https://lucecare.com/collections/all" target="_blank">All Products</a></li><li><a href="#">Facewashes</a></li><li><a href="#">Serums</a></li><li><a href="#">Lotions</a></li><li><a href="#">Sunscreen</a></li><li><a href="#lucebox">Luce Box</a></li></ul></div>
+    <div class="f-col"><h4>Discover</h4><ul><li><a href="#concerns">Shop by Concern</a></li><li><a href="#ingredients">Shop by Ingredient</a></li><li><a href="#">Skin Quiz</a></li><li><a href="https://lucecare.com/pages/about-us" target="_blank">About Us</a></li></ul></div>
+    <div class="f-col"><h4>Support</h4><ul><li><a href="https://lucecare.com/pages/contact" target="_blank">Contact Us</a></li><li><a href="#">Shipping Info</a></li><li><a href="https://lucecare.com/policies/privacy-policy" target="_blank">Privacy Policy</a></li><li><a href="https://lucecare.com/policies/terms-of-service" target="_blank">Terms of Service</a></li></ul></div>
+  </div>
+  <div class="f-bottom">
+    <p>© 2026, LUCÉ — Powered by East Naturals. All rights reserved.</p>
+    <div class="f-badges"><div class="f-badge">🔒 Secure</div><div class="f-badge">🌿 Vegan</div><div class="f-badge">🐰 Cruelty-Free</div></div>
+  </div>
+</footer>
+
+<script>
+// ===== PRODUCTS =====
+const products=[
+  {id:0,name:'Vitamin-C Serum',size:'30ml',price:2895,cat:'Serums',icon:'🍊',desc:'Brightening powerhouse with stable Vitamin-C to fade dark spots and boost radiance.',stars:5,reviews:2,badge:'Best Seller',pop:95,img:'https://lucecare.com/cdn/shop/files/vitamin_c_serum.jpg?v=1765851963&width=400',img2:'https://lucecare.com/cdn/shop/files/Vitamin_C_serum_product_listing_interactive_2nd_pic.png?v=1765851963&width=400',link:'https://lucecare.com/products/vitamin-c-serum-30ml'},
+  {id:1,name:'Vitamin-C Facewash',size:'120ml',price:950,cat:'Facewashes',icon:'🌿',desc:'Gentle foaming cleanser with Vitamin-C for a clean, glowing, revitalised complexion.',stars:4.5,reviews:2,badge:'',pop:80,img:'https://lucecare.com/cdn/shop/files/vitamin_c_face_wash.jpg?v=1765852174&width=400',img2:'https://lucecare.com/cdn/shop/files/Vitamin_C_Facewash_Product_listing_2.png?v=1765852174&width=400',link:'https://lucecare.com/products/vitamin-c-facewash-120ml'},
+  {id:2,name:'Sunblock 60 SPF',size:'',price:1050,cat:'Sun Care',icon:'☀️',desc:'Broad-spectrum SPF 60 sunblock. Lightweight, no white cast — perfect every day.',stars:5,reviews:2,badge:'Essential',pop:88,img:'https://lucecare.com/cdn/shop/files/SUNSCREEN_TUBE_jpg.jpg?v=1770133862&width=400',img2:'https://lucecare.com/cdn/shop/files/LUCE_SUNSCREEN_jpg.jpg?v=1770136893&width=400',link:'https://lucecare.com/products/sunblock-60spf'},
+  {id:3,name:'Shea Butter Body Lotion',size:'330ml',price:1650,cat:'Moisturizers',icon:'🧈',desc:'Rich, nourishing lotion with pure Shea Butter for deeply moisturized, silky skin.',stars:5,reviews:3,badge:'',pop:92,img:'https://lucecare.com/cdn/shop/files/shea_butter_2.jpg?v=1765851910&width=400',img2:'https://lucecare.com/cdn/shop/files/Shea_Butter_interactive_2nd_pic.png?v=1765851910&width=400',link:'https://lucecare.com/products/shea-butter-body-lotion-330ml'},
+  {id:4,name:'Rice Facewash',size:'120ml',price:990,cat:'Facewashes',icon:'🌾',desc:'Asian beauty secret — Rice Extract gently cleanses, brightens and refines skin texture.',stars:4.7,reviews:3,badge:'',pop:85,img:'https://lucecare.com/cdn/shop/files/rice_facewash_2.jpg?v=1765852256&width=400',img2:'https://lucecare.com/cdn/shop/files/rice_extract_fv.png?v=1770136780&width=400',link:'https://lucecare.com/products/rice-facewash-120ml'},
+  {id:5,name:'Nourishing Body Lotion',size:'',price:1750,cat:'Moisturizers',icon:'💧',desc:'Lightweight yet intensely hydrating lotion for silky-smooth, glowing skin all day.',stars:5,reviews:2,badge:'',pop:78,img:'https://lucecare.com/cdn/shop/files/nourishing_body_lotion_jpg.jpg?v=1770136296&width=400',img2:'',link:'https://lucecare.com/products/nourishing-body-lotion'},
+  {id:6,name:'Moisturiser',size:'100ml',price:1150,cat:'Moisturizers',icon:'✨',desc:'Balancing daily moisturiser with Hyaluronic Acid — hydrates without clogging pores.',stars:5,reviews:2,badge:'',pop:82,img:'https://lucecare.com/cdn/shop/files/1_mois_jpg.jpg?v=1770139042&width=400',img2:'https://lucecare.com/cdn/shop/files/oil_moistuizer_box_jpg.jpg?v=1770139042&width=400',link:'https://lucecare.com/products/moisturiser-100ml'},
+  {id:7,name:'Brightening Serum',size:'30ml',price:2895,cat:'Serums',icon:'💫',desc:'Targets dark spots with Glutathione and brightening actives for visibly even skin tone.',stars:5,reviews:0,badge:'New',pop:70,img:'https://lucecare.com/cdn/shop/files/BRIGHTENINGSERUM_jpg.jpg?v=1770234691&width=400',img2:'',link:'https://lucecare.com/products/brightening-serum'},
+  {id:8,name:'Night Cream',size:'',price:1350,cat:'Moisturizers',icon:'🌙',desc:'Repair and restore overnight — rich, nourishing night cream for deep skin recovery.',stars:5,reviews:0,badge:'New',pop:65,img:'',img2:'',link:'https://lucecare.com/products/night-cream'},
+];
+
+let cart=[];
+
+function renderProducts(){
+  document.getElementById('prodGrid').innerHTML=products.map(p=>`
+    <div class="prod-card" id="pc${p.id}" data-id="${p.id}" onclick="goProduct(${p.id})">
+      ${p.badge?`<div class="pbadge${p.badge==='New'?' new':''}">${p.badge}</div>`:''}
+      <div class="pimg-wrap">
+        ${p.img?`<img class="pimg" src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`:
+        `<div style="font-size:72px;position:relative;z-index:1;filter:drop-shadow(0 20px 40px rgba(0,0,0,.4))">${p.icon}</div>`}
+        ${p.img2?`<img class="pimg-hover" src="${p.img2}" alt="${p.name} 2" loading="lazy" onerror="this.style.display='none'">`:``}
+      </div>
+      <div class="pinfo">
+        <div class="pcat">${p.cat}</div>
+        <div class="pname">${p.name}${p.size?` <span style="font-size:14px;color:var(--text3);font-family:var(--sans)">${p.size}</span>`:''}</div>
+        <div class="pdesc">${p.desc}</div>
+        ${p.reviews>0?`<div class="pstars"><span class="stars">${'★'.repeat(Math.floor(p.stars))}${p.stars%1?'☆':''}</span><span class="rcount">(${p.reviews})</span></div>`:''}
+        <div class="pfoot">
+          <div class="pprice">Rs.${p.price.toLocaleString()} <span>PKR</span></div>
+          <button class="padd" onclick="event.stopPropagation();addToCart(${p.id})"><span>Add +</span></button>
+        </div>
+        <div class="ppop">
+          <div class="ppop-label"><span>Popularity</span><span>${p.pop}%</span></div>
+          <div class="ppop-bar"><div class="ppop-fill" style="width:0%" data-width="${p.pop}%"></div></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // 3D tilt
+  document.querySelectorAll('.prod-card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      card.style.transform=`perspective(1000px) rotateY(${x*10}deg) rotateX(${-y*10}deg) translateZ(10px)`;
+    });
+    card.addEventListener('mouseleave',()=>{
+      card.style.transform='perspective(1000px) rotateY(0) rotateX(0) translateZ(0)';
+      card.style.transition='transform .6s cubic-bezier(.34,1.56,.64,1),border-color .4s,box-shadow .4s';
+    });
+    card.addEventListener('mouseenter',()=>{card.style.transition='transform .1s linear,border-color .4s,box-shadow .4s';});
+  });
+
+  // Animate bars when visible
+  setTimeout(()=>{
+    document.querySelectorAll('.ppop-fill').forEach(el=>{
+      const io=new IntersectionObserver(ens=>{ens.forEach(en=>{if(en.isIntersecting){el.style.width=el.dataset.width;io.disconnect();}});},{threshold:.5});
+      io.observe(el);
+    });
+  },500);
+}
+
+function goProduct(id){
+  const p=products[id];
+  window.open(p.link,'_blank');
+}
+
+function addToCart(id){
+  const p=products[id];
+  const ex=cart.find(c=>c.id===id);
+  if(ex)ex.qty++;
+  else cart.push({...p,qty:1});
+  updateCart();
+  showToast('✦ '+p.name+' added to cart');
+  openCart();
+}
+
+function removeFromCart(id){cart=cart.filter(c=>c.id!==id);updateCart();}
+function changeQty(id,d){const i=cart.find(c=>c.id===id);if(i){i.qty+=d;if(i.qty<=0)removeFromCart(id);else updateCart();}}
+
+function updateCart(){
+  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const count=cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('cCount').textContent=count;
+  const body=document.getElementById('cBody');
+  const foot=document.getElementById('cFoot');
+  if(!cart.length){body.innerHTML='<div class="cart-empty">Your cart is empty</div>';foot.style.display='none';return;}
+  foot.style.display='block';
+  document.getElementById('cTotal').textContent='Rs.'+total.toLocaleString();
+  const rem=3999-total;
+  const sn=document.getElementById('shipNote');
+  sn.textContent=rem>0?`Add Rs.${rem.toLocaleString()} more for FREE shipping!`:'🎉 You qualify for FREE shipping!';
+  sn.style.color=rem<=0?'#5cb87a':'var(--gold)';
+  body.innerHTML=cart.map(item=>`
+    <div class="ci">
+      <div class="ci-img">${item.img?`<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">`:item.icon}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">Rs.${(item.price*item.qty).toLocaleString()}</div>
+        <div class="ci-qty">
+          <button class="qbtn" onclick="changeQty(${item.id},-1)">−</button>
+          <div class="qnum">${item.qty}</div>
+          <button class="qbtn" onclick="changeQty(${item.id},1)">+</button>
+        </div>
+        <button class="ci-remove" onclick="removeFromCart(${item.id})">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openCart(){document.getElementById('cDrawer').classList.add('open');document.getElementById('cOverlay').classList.add('open');}
+function closeCart(){document.getElementById('cDrawer').classList.remove('open');document.getElementById('cOverlay').classList.remove('open');}
+function toCheckout(){showToast('Redirecting...');setTimeout(()=>window.open('https://lucecare.com/collections/all','_blank'),700);}
+
+// SEARCH
+function openSearch(){document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchIn').focus();doSearch('');}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');}
+function doSearch(v){
+  const q=v.toLowerCase();
+  const res=v?products.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)):products;
+  document.getElementById('searchResults').innerHTML=res.map(p=>`
+    <div class="sr-item" onclick="closeSearch();addToCart(${p.id})">
+      <div class="sr-icon">${p.icon}</div>
+      <div><div class="sr-name">${p.name}</div><div class="sr-price">Rs.${p.price.toLocaleString()}</div></div>
+    </div>
+  `).join('');
+}
+
+// LUCE BOX
+function renderLuceBox(){
+  const sel=products.slice(0,5);
+  document.getElementById('lbBoxes').innerHTML=sel.map(p=>`
+    <div class="lb-box" onclick="this.classList.toggle('selected');addToCart(${p.id})">
+      <div class="lb-box-icon">${p.img?`<img src="${p.img}" style="width:50px;height:60px;object-fit:contain" onerror="this.style.display='none'">`:p.icon}</div>
+      <div class="lb-box-name">${p.name.split(' ').slice(0,2).join(' ')}</div>
+    </div>
+  `).join('')+`<div class="lb-box add-btn">+</div>`;
+}
+
+// TOAST
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function toast(msg){showToast(msg);}
+
+// NEWSLETTER
+function subscribe(){
+  const v=document.getElementById('nlEmail').value;
+  if(v&&v.includes('@')){showToast('✦ Welcome to the Glow Club!');document.getElementById('nlEmail').value='';}
+  else showToast('Please enter a valid email.');
+}
+
+// CURSOR
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(anim);})();
+document.querySelectorAll('button,a,.prod-card,.conc-card,.ing-card,.rev-card,.lb-box,.f-s').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hovered'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hovered'));
+});
+
+// PARTICLES
+(function(){
+  const canvas=document.getElementById('particles');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++){
+    particles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,o:Math.random()*.4+.1});
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(212,169,83,${p.o})`;ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.08});
+document.querySelectorAll('.sr').forEach(el=>obs.observe(el));
+
+// KEYBOARD
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCart();closeSearch();}});
+
+// INIT
+renderProducts();
+renderLuceBox();
+</script>
+</body>
+</html>
